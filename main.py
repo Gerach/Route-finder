@@ -3,9 +3,9 @@
 import cv2
 
 moving = False
-map_x, map_y = 1000, 1000
-window_width, window_height = 1000, 700
-ix, iy = 0, 0
+map_x, map_y = 1000, 1000 # top left corner of the map
+window_width, window_height = 1000, 700 # window resolution
+ix, iy = 0, 0 # mouse coordinates before movement
 img_width, img_height = 0, 0
 
 
@@ -16,8 +16,8 @@ def navigate_image(event, x, y, flags, param):
         ix, iy = x, y
     elif event == cv2.EVENT_MOUSEMOVE:
         if moving and x >= 0 and y >= 0 and x <window_width and y < window_height:
-            map_x += ix - x
-            map_y += iy - y
+            map_x += int((ix - x)/5)
+            map_y += int((iy - y)/5)
 
             if map_x < 0:
                 map_x = 0
