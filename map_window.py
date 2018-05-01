@@ -9,7 +9,7 @@ class MapWindow(object):
         self.img = img
         self.img_height, self.img_width = img.shape[:2]
         self.map_y, self.map_x = 1000, 1000  # coordinates of top left corner of the map
-        self.window_width, self.window_height = 1000, 700
+        self.window_width, self.window_height = 1000, 600
         self.mouse_moving = False
         self.mouse_lb_pressed = False
         self.mouse_rb_pressed = False
