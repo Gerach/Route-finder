@@ -4,11 +4,13 @@ import cv2 as cv
 
 
 class MapWindow(object):
-    def __init__(self, img, window_name='Window'):
+    def __init__(self, img, location, destination, window_name='Window'):
         self.WINDOW_NAME = window_name
         self.img = img
         self.img_height, self.img_width = img.shape[:2]
         self.map_y, self.map_x = 1000, 1000  # coordinates of top left corner of the map
+        self.loc_x, self.loc_y = location[0], location[1]
+        self.dest_x, self.dest_y = destination[0], destination[1]
         self.window_width, self.window_height = 1000, 600
         self.mouse_moving = False
         self.mouse_lb_pressed = False
@@ -19,6 +21,8 @@ class MapWindow(object):
         cv.setMouseCallback(self.WINDOW_NAME, self.on_mouse)
 
         self.redraw_image()
+        cv.circle(self.img, (self.loc_x, self.loc_y), 7, (0, 0, 255), -1)
+        cv.circle(self.img, (self.dest_x, self.dest_y), 7, (255, 0, 0), -1)
 
     def on_mouse(self, event, x, y, flags, param):
         if 0 <= x < self.window_width and 0 <= y < self.window_height:
