@@ -34,7 +34,7 @@ def main():
     loc_coord = db.select_address(loc_address[0], loc_address[1])
     dest_coord = db.select_address(dest_address[0], dest_address[1])
 
-    window = MapWindow(img, loc_coord, dest_coord, "Route finder")
+    window = MapWindow(img, 1000, 600, loc_coord, dest_coord, "Route finder")
     key = -1
     while key != ord('q') and key != 27 and cv.getWindowProperty(window.WINDOW_NAME, 0) >= 0:
         key = cv.waitKey(1)

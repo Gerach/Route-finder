@@ -5,8 +5,8 @@ import sys
 
 
 class Database(object):
-    def __init__(self, file):
-        self.conn = sqlite3.connect(file)
+    def __init__(self, file_name):
+        self.conn = sqlite3.connect(file_name)
         # self.conn.text_factory = str
         self.cursor = self.conn.cursor()
 
