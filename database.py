@@ -7,7 +7,6 @@ import sys
 class Database(object):
     def __init__(self, file_name):
         self.conn = sqlite3.connect(file_name)
-        # self.conn.text_factory = str
         self.cursor = self.conn.cursor()
 
     def create_tables(self):
@@ -20,13 +19,14 @@ class Database(object):
     def insert_address(self, values):
         try:
             self.cursor.executemany('INSERT INTO address VALUES (?,?,?,?)', values)
+            self.conn.commit()
         except sqlite3.ProgrammingError:
             print('Invalid argument count given for address insertion.')
             sys.exit(1)
 
     def select_address(self, street, house):
         self.cursor.execute(
-            "SELECT x_coord, y_coord FROM address WHERE street = '{0}' AND house = '{1}'".format(street, house))
+            "SELECT x_coord, y_coord FROM address WHERE street = ? AND house = ?", (street, house))
         return self.cursor.fetchone()
 
     def show_table_contents(self, table_name):
