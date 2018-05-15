@@ -27,6 +27,7 @@ class MapWindow(object):
 
         cv.circle(self.img, (self.loc_x, self.loc_y), 7, (0, 0, 255), -1)
         cv.circle(self.img, (self.dest_x, self.dest_y), 7, (255, 0, 0), -1)
+
         self.redraw_image()
 
     def on_mouse(self, event, x, y, flags, param):
@@ -35,6 +36,7 @@ class MapWindow(object):
                 self.mouse_lb_pressed = True
                 self.mouse_moving = True
                 self.x_before_move, self.y_before_move = x, y
+                print(self.map_x + self.x_before_move, self.map_y + self.y_before_move)
             if event == cv.EVENT_RBUTTONDOWN:
                 self.mouse_rb_pressed = True
                 self.mouse_moving = True
@@ -55,11 +57,11 @@ class MapWindow(object):
             elif event == cv.EVENT_LBUTTONUP:
                 self.mouse_lb_pressed = False
                 self.mouse_moving = False
-            elif event == cv.EVENT_RBUTTONUP:
-                self.mouse_rb_pressed = False
-                self.mouse_moving = False
+            # elif event == cv.EVENT_RBUTTONUP:
+            #     self.mouse_rb_pressed = False
+            #     self.mouse_moving = False
         else:
-            self.mouse_rb_pressed = False
+            # self.mouse_rb_pressed = False
             self.mouse_lb_pressed = False
             self.mouse_moving = False
 
@@ -76,4 +78,9 @@ class MapWindow(object):
                       self.map_y: self.map_y + self.window_height,
                       self.map_x: self.map_x + self.window_width]
         cv.imshow(self.WINDOW_NAME, img_cropped)
+
+    def draw_road(self, roads):
+        for road in roads:
+            cv.line(self.img, (road[0], road[1]), (road[2], road[3]), (0, 0, 0), 10)
+        self.redraw_image()
 

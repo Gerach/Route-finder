@@ -49,7 +49,9 @@ class Database(object):
 
     def insert_road(self, values):
         try:
-            self.cursor.executemany('INSERT INTO road(street, house, speed_limit, x1_coord, y1_coord, x2_coord, y2_coord) VALUES (?,?,?,?,?,?,?)', values)
+            self.cursor.executemany(
+                'INSERT INTO road(street, house, speed_limit, x1_coord, y1_coord, x2_coord, y2_coord) '
+                'VALUES (?,?,?,?,?,?,?)', values)
             self.conn.commit()
         except sqlite3.ProgrammingError:
             print('Invalid argument count given for road insertion.')
@@ -68,10 +70,24 @@ class Database(object):
             "SELECT x_coord, y_coord FROM address WHERE street = ? AND house = ?", (street, house))
         return self.cursor.fetchone()
 
-    def select_road(self, road_id):
+    def select_road(self, street, house):
         self.cursor.execute(
-            "SELECT * FROM road WHERE road_id = ?", road_id)
-        return self.cursor.fetchone()
+            "SELECT x1_coord, y1_coord, x2_coord, y2_coord FROM road WHERE street = ? AND house = ?", (street, house))
+        return self.cursor.fetchall()
+
+    def select_adjasent_roads(self, x1, y1, x2, y2):
+        self.cursor.execute(
+            "SELECT x1_coord, y1_coord, x2_coord, y2_coord FROM road WHERE "
+            "x1_coord = ? AND y1_coord = ? AND x2_coord != ? AND y2_coord != ? OR "
+            "x2_coord = ? AND y2_coord = ? AND x1_coord != ? AND y1_coord != ? OR "
+            "x1_coord = ? AND y1_coord = ? AND x2_coord != ? AND y2_coord != ? OR "
+            "x2_coord = ? AND y2_coord = ? AND x1_coord != ? AND y1_coord != ?",
+            (x1, y1, x2, y2, x1, y1, x2, y2, x2, y2, x1, y1, x2, y2, x1, y1))
+        return self.cursor.fetchall()
+
+    def select_roads(self):
+        self.cursor.execute("SELECT x1_coord, y1_coord, x2_coord, y2_coord FROM road")
+        return self.cursor.fetchall()
 
     def show_table_contents(self, table_name):
         for row in self.cursor.execute("SELECT * FROM " + table_name):
