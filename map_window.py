@@ -84,3 +84,7 @@ class MapWindow(object):
             cv.line(self.img, (road[0], road[1]), (road[2], road[3]), (0, 0, 0), 10)
         self.redraw_image()
 
+    def get_max_distance(self):
+        if self.img_height > self.img_width:
+            return self.img_height
+        return self.img_width
