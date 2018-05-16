@@ -6,8 +6,9 @@ from database import Database
 
 
 class Route(object):
-    def __init__(self, max_distance):
+    def __init__(self, max_distance, db):
         self.max_distance = max_distance
+        self.db = db
         self.location_address = None
         self.destination_address = None
         self.roads = None
@@ -91,14 +92,12 @@ class Route(object):
         location_coords = None
         destination_coords = None
 
-        db = Database('data.sqlite')
-
         if self.location_address:
-            location_coords = db.select_address(self.location_address[0], self.location_address[1])
+            location_coords = self.db.select_address(self.location_address[0], self.location_address[1])
         if self.destination_address:
-            destination_coords = db.select_address(self.destination_address[0], self.destination_address[1])
+            destination_coords = self.db.select_address(self.destination_address[0], self.destination_address[1])
 
         if self.location_address and self.destination_address and self.location_address != self.destination_address:
-            self.roads = self.calculate_route(db, self.location_address, self.destination_address, location_coords,
+            self.roads = self.calculate_route(self.db, self.location_address, self.destination_address, location_coords,
                                               destination_coords)
         return self.roads

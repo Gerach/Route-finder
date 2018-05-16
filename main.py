@@ -1,47 +1,12 @@
 #!/usr/bin/env python3
 
 import cv2 as cv
-import sys
 import gtk
 
 from map_window import MapWindow
 from database import Database
 from route import Route
-
-
-def check_input(value):
-    address = value.rsplit(' ', 1)
-    if len(address) != 2:
-        print('Invalid address format provided.')
-        sys.exit(1)
-    elif address[0] is '' or address[1] is '':
-        print('Invalid address format provided.')
-        sys.exit(1)
-    return address
-
-
-def change_location(db, map, window, route):
-    input_location = raw_input('Input location address: ')
-    location_address = check_input(input_location)
-    location_coord = db.select_address(location_address[0], location_address[1])
-
-    img = cv.imread(map)
-    window.set_location(img, location_coord)
-    route.set_location(location_address)
-
-    window.draw_road(route.get_roads())
-
-
-def change_destination(db, map, window, route):
-    input_destination = raw_input('Input destination address: ')
-    destination_address = check_input(input_destination)
-    destination_coord = db.select_address(destination_address[0], destination_address[1])
-
-    img = cv.imread(map)
-    window.set_destination(img, destination_coord)
-    route.set_destination(destination_address)
-
-    window.draw_road(route.get_roads())
+from ui import Ui
 
 
 def main():
@@ -95,16 +60,14 @@ def main():
     window_height = gtk.gdk.screen_height()
 
     window = MapWindow(img, int(window_width * 0.8), int(window_height * 0.8), "Route finder")
-    route = Route(window.get_max_distance())
+    route = Route(window.get_max_distance(), db)
 
-    command = ''
-    while command != 'exit' and cv.getWindowProperty(window.WINDOW_NAME, 0) >= 0:
+    run_program = True
+    while run_program and cv.getWindowProperty(window.WINDOW_NAME, 0) >= 0:
         cv.waitKey(1)
-        command = raw_input('Enter command: ')
-        if command == 'change location':
-            change_location(db, in_file, window, route)
-        elif command == 'change destination':
-            change_destination(db, in_file, window, route)
+        ui = Ui(db, in_file, window, route)
+        if ui.get_exit():
+            run_program = False
 
     cv.destroyAllWindows()
     db.conn.close()

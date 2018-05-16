@@ -94,13 +94,13 @@ class MapWindow(object):
         return self.img_width
 
     def set_location(self, img, location):
-        self.img = img
+        self.img = cv.imread(img)
         self.map_y = location[1] - self.window_height / 2  # coordinates of top left corner of the map
         self.map_x = location[0] - self.window_width / 2
         self.loc_x, self.loc_y = location[0], location[1]
         self.redraw_location_destination()
 
     def set_destination(self, img, destination):
-        self.img = img
+        self.img = cv.imread(img)
         self.dest_x, self.dest_y = destination[0], destination[1]
         self.redraw_location_destination()
