@@ -4,18 +4,17 @@ import cv2 as cv
 
 
 class MapWindow(object):
-    def __init__(self, img, window_width, window_height, location, destination, window_name='Window'):
+    def __init__(self, img, window_width, window_height, window_name='Window'):
         self.WINDOW_NAME = window_name
         self.window_width, self.window_height = window_width, window_height
-
-        self.map_y = location[1] - self.window_height/2  # coordinates of top left corner of the map
-        self.map_x = location[0] - self.window_width/2
 
         self.img = img
         self.img_height, self.img_width = img.shape[:2]
 
-        self.loc_x, self.loc_y = location[0], location[1]
-        self.dest_x, self.dest_y = destination[0], destination[1]
+        self.loc_x, self.loc_y = None, None
+        self.dest_x, self.dest_y = None, None
+        self.map_y = 0
+        self.map_x = 0
 
         self.mouse_moving = False
         self.mouse_lb_pressed = False
@@ -24,9 +23,6 @@ class MapWindow(object):
 
         cv.namedWindow(self.WINDOW_NAME)
         cv.setMouseCallback(self.WINDOW_NAME, self.on_mouse)
-
-        cv.circle(self.img, (self.loc_x, self.loc_y), 7, (0, 0, 255), -1)
-        cv.circle(self.img, (self.dest_x, self.dest_y), 7, (255, 0, 0), -1)
 
         self.redraw_image()
 
@@ -79,12 +75,32 @@ class MapWindow(object):
                       self.map_x: self.map_x + self.window_width]
         cv.imshow(self.WINDOW_NAME, img_cropped)
 
-    def draw_road(self, roads):
-        for road in roads:
-            cv.line(self.img, (road[0], road[1]), (road[2], road[3]), (0, 0, 0), 10)
+    def redraw_location_destination(self):
+        if self.loc_x and self.loc_y:
+            cv.circle(self.img, (self.loc_x, self.loc_y), 7, (0, 0, 255), -1)
+        if self.dest_x and self.dest_y:
+            cv.circle(self.img, (self.dest_x, self.dest_y), 7, (255, 0, 0), -1)
         self.redraw_image()
+
+    def draw_road(self, roads):
+        if roads:
+            for road in roads:
+                cv.line(self.img, (road[0], road[1]), (road[2], road[3]), (0, 0, 0), 10)
+            self.redraw_image()
 
     def get_max_distance(self):
         if self.img_height > self.img_width:
             return self.img_height
         return self.img_width
+
+    def set_location(self, img, location):
+        self.img = img
+        self.map_y = location[1] - self.window_height / 2  # coordinates of top left corner of the map
+        self.map_x = location[0] - self.window_width / 2
+        self.loc_x, self.loc_y = location[0], location[1]
+        self.redraw_location_destination()
+
+    def set_destination(self, img, destination):
+        self.img = img
+        self.dest_x, self.dest_y = destination[0], destination[1]
+        self.redraw_location_destination()

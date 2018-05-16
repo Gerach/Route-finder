@@ -6,18 +6,23 @@ from database import Database
 
 
 class Route(object):
-    def __init__(self, max_distance, location_address, destination_address):
+    def __init__(self, max_distance):
         self.max_distance = max_distance
+        self.location_address = None
+        self.destination_address = None
+        self.roads = None
+
+    def set_location(self, location_address):
         self.location_address = location_address
+
+    def get_location(self):
+        return self.location_address
+
+    def set_destination(self, destination_address):
         self.destination_address = destination_address
 
-        db = Database('data.sqlite')
-
-        location_coords = db.select_address(self.location_address[0], self.location_address[1])
-        destination_coords = db.select_address(self.destination_address[0], self.destination_address[1])
-
-        self.roads = self.calculate_route(db, location_address, destination_address, location_coords,
-                                          destination_coords)
+    def get_destination(self):
+        return self.destination_address
 
     def find_closest_road_to_address(self, db, start_address, finish_coords):
         min_distance = self.max_distance
@@ -82,4 +87,18 @@ class Route(object):
         return roads
 
     def get_roads(self):
+        self.roads = None
+        location_coords = None
+        destination_coords = None
+
+        db = Database('data.sqlite')
+
+        if self.location_address:
+            location_coords = db.select_address(self.location_address[0], self.location_address[1])
+        if self.destination_address:
+            destination_coords = db.select_address(self.destination_address[0], self.destination_address[1])
+
+        if self.location_address and self.destination_address and self.location_address != self.destination_address:
+            self.roads = self.calculate_route(db, self.location_address, self.destination_address, location_coords,
+                                              destination_coords)
         return self.roads

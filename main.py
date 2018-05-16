@@ -20,14 +20,35 @@ def check_input(value):
     return address
 
 
+def change_location(db, map, window, route):
+    input_location = raw_input('Input location address: ')
+    location_address = check_input(input_location)
+    location_coord = db.select_address(location_address[0], location_address[1])
+
+    img = cv.imread(map)
+    window.set_location(img, location_coord)
+    route.set_location(location_address)
+
+    window.draw_road(route.get_roads())
+
+
+def change_destination(db, map, window, route):
+    input_destination = raw_input('Input destination address: ')
+    destination_address = check_input(input_destination)
+    destination_coord = db.select_address(destination_address[0], destination_address[1])
+
+    img = cv.imread(map)
+    window.set_destination(img, destination_coord)
+    route.set_destination(destination_address)
+
+    window.draw_road(route.get_roads())
+
+
 def main():
     in_file = 'vilnius.png'
     img = cv.imread(in_file)
-
-    loc_address = check_input(sys.argv[1])
-    dest_address = check_input(sys.argv[2])
-
     db = Database('data.sqlite')
+
     # db.create_tables()
     # addresses = [('Naugarduko', 24, 2400, 2870),
     #              ('Didlaukio', 47, 2210, 1020),
@@ -39,7 +60,7 @@ def main():
     #          ('Naugarduko', 24, None, 2424, 2832, 2433, 2879),
     #          ('Naugarduko', 24, None, 2433, 2879, 2379, 2891),
     #          ('Naugarduko', 24, None, 2379, 2891, 2374, 2862),
-    #          ('Didlaukio', 59, None, 2195, 1042, 2161, 1007),
+    #          ('Didlaukio', 47, None, 2195, 1042, 2161, 1007),
     #          ('Sauletekio', 6, None, 3504, 1134, 3487, 1159),
     #          ('Antakalnio', 17, None, 3161, 2121, 3143, 2142),
     #          (None, None, None, 2374, 2862, 2312, 2900),
@@ -70,22 +91,22 @@ def main():
     # db.insert_address(addresses)
     # db.insert_road(roads)
 
-    loc_coord = db.select_address(loc_address[0], loc_address[1])
-    dest_coord = db.select_address(dest_address[0], dest_address[1])
-
     window_width = gtk.gdk.screen_width()
     window_height = gtk.gdk.screen_height()
 
-    window = MapWindow(img, int(window_width * 0.8), int(window_height * 0.8), loc_coord, dest_coord, "Route finder")
+    window = MapWindow(img, int(window_width * 0.8), int(window_height * 0.8), "Route finder")
+    route = Route(window.get_max_distance())
 
-    route = Route(window.get_max_distance(), loc_address, dest_address)
-    window.draw_road(route.get_roads())
+    command = ''
+    while command != 'exit' and cv.getWindowProperty(window.WINDOW_NAME, 0) >= 0:
+        cv.waitKey(1)
+        command = raw_input('Enter command: ')
+        if command == 'change location':
+            change_location(db, in_file, window, route)
+        elif command == 'change destination':
+            change_destination(db, in_file, window, route)
 
-    key = -1
-    while key != ord('q') and key != 27 and cv.getWindowProperty(window.WINDOW_NAME, 0) >= 0:
-        key = cv.waitKey(1)
     cv.destroyAllWindows()
-
     db.conn.close()
 
 
