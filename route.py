@@ -28,24 +28,22 @@ class Route(object):
 
         return closest_road
 
-    def find_closest_road_to_coordinates(self, x_coords, y_coords):
+    def find_closest_road_to_coordinates(self, coords):
         min_distance = self.max_distance
         closest_road = ()
 
-        print(x_coords, y_coords)
+        for road in self.db.select_roads():
+            distance = math.sqrt((road[0] - coords[0]) ** 2 + (road[1] - coords[1]) ** 2)
+            if distance < min_distance:
+                min_distance = distance
+                closest_road = road
 
-        # for road in db.select_roads():
-        #     distance = math.sqrt((road[0] - finish_coords[0]) ** 2 + (road[1] - finish_coords[1]) ** 2)
-        #     if distance < min_distance:
-        #         min_distance = distance
-        #         closest_road = road
-        #
-        #     distance = math.sqrt((road[2] - finish_coords[0]) ** 2 + (road[3] - finish_coords[1]) ** 2)
-        #     if distance < min_distance:
-        #         min_distance = distance
-        #         closest_road = road
-        #
-        # return closest_road
+            distance = math.sqrt((road[2] - coords[0]) ** 2 + (road[3] - coords[1]) ** 2)
+            if distance < min_distance:
+                min_distance = distance
+                closest_road = road
+
+        return closest_road
 
     def find_closest_road(self, road, dest_coords):
         min_distance = self.max_distance
@@ -92,6 +90,31 @@ class Route(object):
 
         return roads
 
+    def calculate_route_int(self, loc_coords, dest_coords):
+        roads = [self.find_closest_road_to_coordinates(dest_coords),
+                 self.find_closest_road_to_coordinates(loc_coords)]
+        destination_reached = False
+        last_road = 1
+
+        while not destination_reached:
+            try:
+                current_road = self.find_closest_road(roads[last_road], dest_coords)
+                destination_road = roads[0]
+
+                if current_road[0] == destination_road[0] and current_road[1] == destination_road[1] \
+                        or current_road[2] == destination_road[0] and current_road[3] == destination_road[1] \
+                        or current_road[0] == destination_road[2] and current_road[1] == destination_road[3] \
+                        or current_road[2] == destination_road[2] and current_road[3] == destination_road[3]:
+                    destination_reached = True
+                if len(roads) > 1000:
+                    destination_reached = True
+                roads.append(current_road)
+                last_road += 1
+            except IndexError:
+                destination_reached = True
+
+        return roads
+
     def get_roads(self):
         self.roads = None
         location_coords = None
@@ -105,4 +128,12 @@ class Route(object):
         if self.location_address and self.destination_address and self.location_address != self.destination_address:
             self.roads = self.calculate_route(self.location_address, self.destination_address, location_coords,
                                               destination_coords)
+        return self.roads
+
+    def get_roads_int(self, location_coords, destination_coords):
+        self.roads = None
+
+        if location_coords and destination_coords and location_coords != destination_coords:
+            self.roads = self.calculate_route_int(location_coords, destination_coords)
+
         return self.roads

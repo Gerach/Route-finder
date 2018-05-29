@@ -29,10 +29,14 @@ class Ui(object):
                     "change location int",
                     "change destination int",
                     "?",
+                    ""
                     ]
 
         self.db = db
         self.exit = False
+
+        if window.loc_x and window.dest_x and not route.location_address and not route.destination_address:
+            window.draw_road(route.get_roads_int([window.loc_x, window.loc_y], [window.dest_x, window.dest_y]))
 
         command = raw_input('Enter command: ')
 
@@ -48,9 +52,9 @@ class Ui(object):
         elif command == '?':
             print_help()
         elif command == 'change location int':
-            self.change_location_int(window, route)
+            self.change_location_int(window)
         elif command == 'change destination int':
-            self.change_destination_int(window, route)
+            self.change_destination_int(window)
 
     def check_address(self, direction):
         input_address = raw_input('Input {} address: '.format(direction))
@@ -78,7 +82,7 @@ class Ui(object):
         try:
             location_address, location_coord = self.check_address('location')
             window.set_location(location_coord)
-            route.set_location(location_address)
+            route.location_address = location_address
 
             window.draw_road(route.get_roads())
         except TypeError:
@@ -88,25 +92,21 @@ class Ui(object):
         try:
             destination_address, destination_coord = self.check_address('destination')
             window.set_destination(destination_coord)
-            route.set_destination(destination_address)
+            route.destination_address = destination_address
 
             window.draw_road(route.get_roads())
         except TypeError:
             return
 
-    def change_location_int(self, window, route):
+    @staticmethod
+    def change_location_int(window):
         print('Please select location from map, use right mouse click to choose a place.')
         window.set_location_mouse()
-        # if window.loc_x and window.loc_y:
-        #     route.set_location(location_address)
-        #     window.draw_road(route.get_roads())
 
-    def change_destination_int(self, window, route):
+    @staticmethod
+    def change_destination_int(window):
         print('Please select destination from map, use right mouse click to choose a place.')
         window.set_destination_mouse()
-        # if window.dest_x and window.dest_y:
-        #     route.set_destination(destination_address)
-        #     window.draw_road(route.get_roads())
 
     def get_exit(self):
         return self.exit
