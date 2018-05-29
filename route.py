@@ -2,8 +2,6 @@
 
 import math
 
-from database import Database
-
 
 class Route(object):
     def __init__(self, max_distance, db):
