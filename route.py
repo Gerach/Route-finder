@@ -11,23 +11,11 @@ class Route(object):
         self.destination_address = None
         self.roads = None
 
-    def set_location(self, location_address):
-        self.location_address = location_address
-
-    def get_location(self):
-        return self.location_address
-
-    def set_destination(self, destination_address):
-        self.destination_address = destination_address
-
-    def get_destination(self):
-        return self.destination_address
-
-    def find_closest_road_to_address(self, db, start_address, finish_coords):
+    def find_closest_road_to_address(self, start_address, finish_coords):
         min_distance = self.max_distance
         closest_road = ()
 
-        for road in db.select_road(start_address[0], start_address[1]):
+        for road in self.db.select_road(start_address[0], start_address[1]):
             distance = math.sqrt((road[0] - finish_coords[0]) ** 2 + (road[1] - finish_coords[1]) ** 2)
             if distance < min_distance:
                 min_distance = distance
@@ -40,11 +28,30 @@ class Route(object):
 
         return closest_road
 
-    def find_closest_road(self, db, road, dest_coords):
+    def find_closest_road_to_coordinates(self, x_coords, y_coords):
         min_distance = self.max_distance
         closest_road = ()
 
-        for adjacent_road in db.select_adjasent_roads(*road):
+        print(x_coords, y_coords)
+
+        # for road in db.select_roads():
+        #     distance = math.sqrt((road[0] - finish_coords[0]) ** 2 + (road[1] - finish_coords[1]) ** 2)
+        #     if distance < min_distance:
+        #         min_distance = distance
+        #         closest_road = road
+        #
+        #     distance = math.sqrt((road[2] - finish_coords[0]) ** 2 + (road[3] - finish_coords[1]) ** 2)
+        #     if distance < min_distance:
+        #         min_distance = distance
+        #         closest_road = road
+        #
+        # return closest_road
+
+    def find_closest_road(self, road, dest_coords):
+        min_distance = self.max_distance
+        closest_road = ()
+
+        for adjacent_road in self.db.select_adjasent_roads(*road):
             if adjacent_road[0] != road[0] and \
                     adjacent_road[1] != road[1] and \
                     adjacent_road[0] != road[2] and \
@@ -63,14 +70,14 @@ class Route(object):
 
         return closest_road
 
-    def calculate_route(self, db, loc_address, dest_address, loc_coords, dest_coords):
-        roads = [self.find_closest_road_to_address(db, dest_address, loc_coords),
-                 self.find_closest_road_to_address(db, loc_address, dest_coords)]
+    def calculate_route(self, loc_address, dest_address, loc_coords, dest_coords):
+        roads = [self.find_closest_road_to_address(dest_address, loc_coords),
+                 self.find_closest_road_to_address(loc_address, dest_coords)]
         destination_reached = False
         last_road = 1
 
         while not destination_reached:
-            current_road = self.find_closest_road(db, roads[last_road], dest_coords)
+            current_road = self.find_closest_road(roads[last_road], dest_coords)
             destination_road = roads[0]
 
             if current_road[0] == destination_road[0] and current_road[1] == destination_road[1] \
@@ -96,6 +103,6 @@ class Route(object):
             destination_coords = self.db.select_address(self.destination_address[0], self.destination_address[1])
 
         if self.location_address and self.destination_address and self.location_address != self.destination_address:
-            self.roads = self.calculate_route(self.db, self.location_address, self.destination_address, location_coords,
+            self.roads = self.calculate_route(self.location_address, self.destination_address, location_coords,
                                               destination_coords)
         return self.roads

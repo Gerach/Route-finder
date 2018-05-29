@@ -35,14 +35,14 @@ class MapWindow(object):
                 self.mouse_moving = True
                 self.x_before_move, self.y_before_move = x, y
             elif event == cv.EVENT_RBUTTONDOWN and self.interactive_selection_location:
-                self.set_location([self.map_x + x, self.map_y + y])
                 self.loc_x = self.map_x + x
                 self.loc_y = self.map_y + y
+                self.set_location([self.loc_x, self.loc_y])
                 self.interactive_selection_location = False
             elif event == cv.EVENT_RBUTTONDOWN and self.interactive_selection_destination:
-                self.set_destination([self.map_x + x, self.map_y + y])
                 self.dest_x = self.map_x + x
                 self.dest_y = self.map_y + y
+                self.set_destination([self.dest_x, self.dest_y])
                 self.interactive_selection_destination = False
             elif event == cv.EVENT_MOUSEMOVE:
                 if self.mouse_moving:
@@ -74,8 +74,10 @@ class MapWindow(object):
     def redraw_location_destination(self):
         if self.loc_x and self.loc_y:
             cv.circle(self.img, (self.loc_x, self.loc_y), 7, (0, 0, 255), -1)
+            print(self.loc_x, self.loc_y)
         if self.dest_x and self.dest_y:
             cv.circle(self.img, (self.dest_x, self.dest_y), 7, (255, 0, 0), -1)
+            print(self.dest_x, self.dest_y)
         self.redraw_image()
 
     def draw_road(self, roads):
@@ -96,6 +98,11 @@ class MapWindow(object):
         self.loc_x, self.loc_y = location[0], location[1]
         self.redraw_location_destination()
 
+    def set_destination(self, destination):
+        self.img = cv.imread(self.img_file)
+        self.dest_x, self.dest_y = destination[0], destination[1]
+        self.redraw_location_destination()
+
     def set_location_mouse(self):
         self.loc_x, self.loc_y = None, None
         self.interactive_selection_location = True
@@ -103,8 +110,3 @@ class MapWindow(object):
     def set_destination_mouse(self):
         self.dest_x, self.dest_y = None, None
         self.interactive_selection_destination = True
-
-    def set_destination(self, destination):
-        self.img = cv.imread(self.img_file)
-        self.dest_x, self.dest_y = destination[0], destination[1]
-        self.redraw_location_destination()

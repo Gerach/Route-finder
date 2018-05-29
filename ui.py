@@ -57,8 +57,8 @@ class Ui(object):
         location_coord = None
         address_exists = False
 
-        if input_address != 'exit':
-            while not address_exists:
+        while not address_exists:
+            if input_address != 'exit':
                 if not check_input(input_address):
                     print('Invalid address format provided. Correct format : <Street name> <House nr.>')
                     input_address = raw_input('Input {} address: '.format(direction))
@@ -69,8 +69,8 @@ class Ui(object):
                         input_address = raw_input('Address not found, try another one: ')
                     else:
                         address_exists = True
-        else:
-            return
+            else:
+                return
 
         return input_address.rsplit(' ', 1), location_coord
 
