@@ -11,7 +11,6 @@ from ui import Ui
 
 def main():
     in_file = 'vilnius.png'
-    img = cv.imread(in_file)
     db = Database('data.sqlite')
 
     # db.create_tables()
@@ -59,13 +58,13 @@ def main():
     window_width = gtk.gdk.screen_width()
     window_height = gtk.gdk.screen_height()
 
-    window = MapWindow(img, int(window_width * 0.8), int(window_height * 0.8), "Route finder")
+    window = MapWindow(in_file, int(window_width * 0.8), int(window_height * 0.8), "Route finder")
     route = Route(window.get_max_distance(), db)
 
     run_program = True
     while run_program and cv.getWindowProperty(window.WINDOW_NAME, 0) >= 0:
         cv.waitKey(1)
-        ui = Ui(db, in_file, window, route)
+        ui = Ui(db, window, route)
         if ui.get_exit():
             run_program = False
 

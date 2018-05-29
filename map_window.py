@@ -4,22 +4,24 @@ import cv2 as cv
 
 
 class MapWindow(object):
-    def __init__(self, img, window_width, window_height, window_name='Window'):
+    def __init__(self, img_file, window_width, window_height, window_name='Window'):
         self.WINDOW_NAME = window_name
         self.window_width, self.window_height = window_width, window_height
 
-        self.img = img
-        self.img_height, self.img_width = img.shape[:2]
+        self.img_file = img_file
+        self.img = cv.imread(img_file)
+        self.img_height, self.img_width = cv.imread(img_file).shape[:2]
 
         self.loc_x, self.loc_y = None, None
         self.dest_x, self.dest_y = None, None
-        self.map_y = 0
-        self.map_x = 0
+        self.map_y = 0  # coordinate of top left corner of the map
+        self.map_x = 0  # coordinate of top left corner of the map
 
         self.mouse_moving = False
         self.mouse_lb_pressed = False
         self.mouse_rb_pressed = False
         self.x_before_move, self.y_before_move = 0, 0
+        self.interactive_selection_location, self.interactive_selection_destination = False, False
 
         cv.namedWindow(self.WINDOW_NAME)
         cv.setMouseCallback(self.WINDOW_NAME, self.on_mouse)
@@ -32,32 +34,26 @@ class MapWindow(object):
                 self.mouse_lb_pressed = True
                 self.mouse_moving = True
                 self.x_before_move, self.y_before_move = x, y
-                print(self.map_x + self.x_before_move, self.map_y + self.y_before_move)
-            if event == cv.EVENT_RBUTTONDOWN:
-                self.mouse_rb_pressed = True
-                self.mouse_moving = True
-                self.x_before_move, self.y_before_move = x, y
+            elif event == cv.EVENT_RBUTTONDOWN and self.interactive_selection_location:
+                self.set_location([self.map_x + x, self.map_y + y])
+                self.loc_x = self.map_x + x
+                self.loc_y = self.map_y + y
+                self.interactive_selection_location = False
+            elif event == cv.EVENT_RBUTTONDOWN and self.interactive_selection_destination:
+                self.set_destination([self.map_x + x, self.map_y + y])
+                self.dest_x = self.map_x + x
+                self.dest_y = self.map_y + y
+                self.interactive_selection_destination = False
             elif event == cv.EVENT_MOUSEMOVE:
                 if self.mouse_moving:
                     if self.mouse_lb_pressed:
                         self.map_x += int((self.x_before_move - x) / 5)
                         self.map_y += int((self.y_before_move - y) / 5)
                         self.redraw_image()
-                    # elif self.mouse_rb_pressed:
-                    #     multiplier = 0.0001 * abs(y-self.y_before_move)
-                    #     self.img = cv.resize(self.img, None, fx=1+multiplier, fy=1+multiplier, interpolation=cv.INTER_CUBIC)
-                    #
-                    #     self.redraw_image()
-                    #
-                    #     print(y, self.y_before_move, y-self.y_before_move)
             elif event == cv.EVENT_LBUTTONUP:
                 self.mouse_lb_pressed = False
                 self.mouse_moving = False
-            # elif event == cv.EVENT_RBUTTONUP:
-            #     self.mouse_rb_pressed = False
-            #     self.mouse_moving = False
         else:
-            # self.mouse_rb_pressed = False
             self.mouse_lb_pressed = False
             self.mouse_moving = False
 
@@ -93,14 +89,22 @@ class MapWindow(object):
             return self.img_height
         return self.img_width
 
-    def set_location(self, img, location):
-        self.img = cv.imread(img)
-        self.map_y = location[1] - self.window_height / 2  # coordinates of top left corner of the map
+    def set_location(self, location):
+        self.img = cv.imread(self.img_file)
+        self.map_y = location[1] - self.window_height / 2
         self.map_x = location[0] - self.window_width / 2
         self.loc_x, self.loc_y = location[0], location[1]
         self.redraw_location_destination()
 
-    def set_destination(self, img, destination):
-        self.img = cv.imread(img)
+    def set_location_mouse(self):
+        self.loc_x, self.loc_y = None, None
+        self.interactive_selection_location = True
+
+    def set_destination_mouse(self):
+        self.dest_x, self.dest_y = None, None
+        self.interactive_selection_destination = True
+
+    def set_destination(self, destination):
+        self.img = cv.imread(self.img_file)
         self.dest_x, self.dest_y = destination[0], destination[1]
         self.redraw_location_destination()
