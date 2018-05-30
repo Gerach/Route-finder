@@ -74,10 +74,8 @@ class MapWindow(object):
     def redraw_location_destination(self):
         if self.loc_x and self.loc_y:
             cv.circle(self.img, (self.loc_x, self.loc_y), 7, (0, 0, 255), -1)
-            print(self.loc_x, self.loc_y)
         if self.dest_x and self.dest_y:
             cv.circle(self.img, (self.dest_x, self.dest_y), 7, (255, 0, 0), -1)
-            print(self.dest_x, self.dest_y)
         self.redraw_image()
 
     def draw_road(self, roads):
