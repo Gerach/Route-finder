@@ -36,7 +36,7 @@ class Ui(object):
         self.exit = False
 
         if window.loc_x and window.dest_x and not route.location_address and not route.destination_address:
-            window.draw_road(route.get_roads_int([window.loc_x, window.loc_y], [window.dest_x, window.dest_y]))
+            window.draw_road(route.get_roads([window.loc_x, window.loc_y], [window.dest_x, window.dest_y]))
 
         command = raw_input('Enter command: ')
 
@@ -82,9 +82,7 @@ class Ui(object):
         try:
             location_address, location_coord = self.check_address('location')
             window.set_location(location_coord)
-            route.location_address = location_address
-
-            window.draw_road(route.get_roads())
+            window.draw_road(route.get_roads([window.loc_x, window.loc_y], [window.dest_x, window.dest_y]))
         except TypeError:
             return
 
@@ -92,9 +90,7 @@ class Ui(object):
         try:
             destination_address, destination_coord = self.check_address('destination')
             window.set_destination(destination_coord)
-            route.destination_address = destination_address
-
-            window.draw_road(route.get_roads())
+            window.draw_road(route.get_roads([window.loc_x, window.loc_y], [window.dest_x, window.dest_y]))
         except TypeError:
             return
 
